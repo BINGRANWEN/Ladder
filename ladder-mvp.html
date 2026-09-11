@@ -1,0 +1,2310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ladder · MVP 原型 v0.1</title>
+<style>
+:root {
+  --bg: #FAF7F2;
+  --surface: #FFFFFF;
+  --primary: #1F4D3E;
+  --primary-light: #E8F0EC;
+  --primary-dark: #14302A;
+  --accent: #FF7A45;
+  --accent-light: #FFE9DD;
+  --text-primary: #1A1A1A;
+  --text-secondary: #6B6B6B;
+  --text-tertiary: #999;
+  --border: #E8E2D5;
+  --success: #2E8B57;
+  --warning: #FFB800;
+  --danger: #E74C3C;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #F0EBE0;
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding: 32px 16px 80px;
+  line-height: 1.5;
+}
+
+header {
+  max-width: 1280px;
+  margin: 0 auto 24px;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 32px;
+  color: var(--primary);
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+header .slogan {
+  color: var(--text-secondary);
+  font-size: 15px;
+  font-style: italic;
+}
+
+header .meta {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.principles {
+  max-width: 1280px;
+  margin: 0 auto 24px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.principles h3 {
+  color: var(--primary);
+  margin-bottom: 12px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.principles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  font-size: 13px;
+}
+
+.principle-item strong {
+  color: var(--primary);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.nav-tabs {
+  max-width: 1280px;
+  margin: 0 auto 24px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tab {
+  padding: 8px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text-secondary);
+  font-family: inherit;
+}
+
+.tab.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.tab:hover { transform: translateY(-1px); }
+
+.prototype-flow {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.flow-section {
+  margin-bottom: 48px;
+}
+
+.flow-section-title {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  padding-left: 8px;
+  border-left: 3px solid var(--accent);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.phone-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 16px;
+}
+
+.phone {
+  width: 360px;
+  height: 720px;
+  background: var(--bg);
+  border-radius: 36px;
+  border: 8px solid #1A1A1A;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.phone-header {
+  height: 28px;
+  background: #1A1A1A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: white;
+  letter-spacing: 1px;
+}
+
+.phone-screen {
+  height: calc(100% - 28px);
+  overflow-y: auto;
+  background: var(--bg);
+  position: relative;
+}
+
+.phone-screen::-webkit-scrollbar { display: none; }
+
+.phone-caption {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.phone-caption .name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 13px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.flow-arrow {
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 28px;
+  margin: 12px 0;
+  user-select: none;
+}
+
+/* App-level */
+.app-bar {
+  background: var(--surface);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--primary);
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #FFB17A);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Filter bar */
+.filter-bar {
+  padding: 12px 16px;
+  background: var(--surface);
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 60px;
+  z-index: 9;
+}
+
+.filter-bar::-webkit-scrollbar { display: none; }
+
+.filter-chip {
+  padding: 6px 12px;
+  background: var(--bg);
+  border-radius: 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.filter-chip.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+  font-weight: 600;
+}
+
+/* Feed */
+.feed {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mentor-card {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.mentor-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+
+.mentor-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.mentor-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6B8E7F, #A8C4B5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.mentor-info { flex: 1; min-width: 0; }
+
+.mentor-name {
+  font-weight: 600;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mentor-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.verified {
+  width: 14px;
+  height: 14px;
+  background: var(--success);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 9px;
+  font-weight: bold;
+}
+
+.privacy-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.mentor-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.tag {
+  padding: 3px 8px;
+  background: var(--accent-light);
+  color: #C75B2A;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.mentor-bio {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mentor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.mentor-price {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.mentor-price strong {
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.btn {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-accent {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.btn-full {
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+  border-radius: 12px;
+}
+
+/* Bottom nav */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding: 8px 0 12px;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.nav-item.active {
+  color: var(--primary);
+}
+
+.nav-item .icon {
+  font-size: 18px;
+}
+
+/* Detail page */
+.detail-header {
+  padding: 16px;
+  background: linear-gradient(135deg, var(--primary), #2D6B57);
+  color: white;
+  position: relative;
+}
+
+.detail-back {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.detail-mentor {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.detail-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #B0A89A, #E8DCC4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  font-weight: 600;
+  border: 3px solid rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+.detail-name {
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.detail-name .privacy-tag {
+  background: rgba(255,255,255,0.2);
+  color: white;
+}
+
+.detail-meta {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-top: 6px;
+}
+
+.detail-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.detail-body {
+  padding: 16px;
+  padding-bottom: 100px;
+}
+
+.section {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 16px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: var(--border);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+
+.timeline-item:last-child { margin-bottom: 0; }
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -14px;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.timeline-item .year {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 600;
+}
+
+.timeline-item .title {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.timeline-item .desc {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.bio-text {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.7;
+}
+
+.review {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.review:first-of-type { border-top: none; padding-top: 0; }
+
+.review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.review-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.review-user .name {
+  color: var(--text-secondary);
+}
+
+.review-user .anonymous {
+  color: var(--text-tertiary);
+  font-size: 11px;
+}
+
+.stars { color: #FFB800; font-size: 12px; letter-spacing: 1px; }
+
+.review-text {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.cta-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 10;
+}
+
+.cta-bar .price-info {
+  flex: 1;
+}
+
+.cta-bar .label {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.cta-bar .price {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.cta-bar .btn {
+  padding: 12px 24px;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+/* Form page */
+.form-page {
+  padding: 16px;
+}
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  padding: 12px 0;
+}
+
+.step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.step-dot.active {
+  background: var(--primary);
+  width: 24px;
+  border-radius: 4px;
+}
+
+.step-dot.done {
+  background: var(--success);
+}
+
+.step-line {
+  width: 20px;
+  height: 1px;
+  background: var(--border);
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-label .required {
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.form-hint {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-primary);
+}
+
+.form-textarea {
+  min-height: 80px;
+  resize: none;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.tag-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-selector .tag-selectable {
+  padding: 6px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.tag-selector .tag-selectable.selected {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.privacy-banner {
+  background: var(--primary-light);
+  border: 1px dashed var(--primary);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.6;
+}
+
+.privacy-banner .icon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.verify-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.verify-option.selected {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.verify-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.verify-info {
+  flex: 1;
+}
+
+.verify-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.verify-desc {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.checkbox.checked {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  font-size: 12px;
+}
+
+.form-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+/* Booking page */
+.booking-summary {
+  background: var(--primary-light);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.booking-summary .avatar { width: 40px; height: 40px; font-size: 16px; }
+
+.booking-info { flex: 1; }
+
+.booking-name {
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.booking-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.section-padded { padding: 16px; }
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.calendar-day.header {
+  color: var(--text-tertiary);
+  font-size: 10px;
+  cursor: default;
+  font-weight: 600;
+}
+
+.calendar-day.available {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.calendar-day.available:hover {
+  border-color: var(--primary);
+}
+
+.calendar-day.selected {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  font-weight: 600;
+}
+
+.calendar-day.disabled {
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.calendar-day.today {
+  border: 1.5px solid var(--accent);
+  font-weight: 600;
+}
+
+.time-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.time-slot {
+  padding: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-align: center;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.time-slot.selected {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  font-weight: 600;
+}
+
+.time-slot.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.agreement {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.agreement .checkbox { margin-top: 1px; }
+
+/* Call page */
+.call-screen {
+  background: #1A1A1A;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  color: white;
+  position: relative;
+}
+
+.call-top {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.call-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.call-status .dot {
+  width: 8px;
+  height: 8px;
+  background: #2ECC71;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.call-timer {
+  text-align: center;
+  padding: 16px;
+}
+
+.call-timer .time {
+  font-size: 48px;
+  font-weight: 200;
+  letter-spacing: 4px;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.call-timer .total {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+
+.call-video-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.call-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6B8E7F, #A8C4B5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: white;
+  font-weight: 600;
+  position: relative;
+}
+
+.call-avatar::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  animation: ripple 2s infinite;
+}
+
+@keyframes ripple {
+  0% { transform: scale(0.9); opacity: 1; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+.call-name {
+  position: absolute;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.call-name .name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.call-name .sub {
+  font-size: 11px;
+  opacity: 0.6;
+  margin-top: 4px;
+}
+
+.call-watermark {
+  position: absolute;
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  pointer-events: none;
+  user-select: none;
+}
+
+.call-watermark.top-left { top: 8px; left: 8px; }
+.call-watermark.top-right { top: 8px; right: 8px; }
+.call-watermark.bottom-left { bottom: 200px; left: 8px; }
+.call-watermark.bottom-right { bottom: 200px; right: 8px; }
+
+.call-controls {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.call-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+}
+
+.call-btn.danger {
+  background: var(--danger);
+  width: 64px;
+  height: 64px;
+  font-size: 26px;
+}
+
+.call-btn.active {
+  background: var(--accent);
+}
+
+/* Review page */
+.review-page {
+  padding: 16px;
+  padding-bottom: 100px;
+}
+
+.rating-section {
+  text-align: center;
+  padding: 24px 16px 20px;
+}
+
+.rating-question {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.stars-big {
+  font-size: 36px;
+  color: var(--border);
+  margin-bottom: 8px;
+  letter-spacing: 6px;
+}
+
+.stars-big .filled { color: #FFB800; }
+
+.rating-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.mentor-mini {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.mentor-mini .avatar { width: 40px; height: 40px; font-size: 16px; }
+
+.mentor-mini .info { flex: 1; }
+
+.mentor-mini .name {
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mentor-mini .meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.section-title-row {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 16px 0 10px;
+  color: var(--text-primary);
+}
+
+.review-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: none;
+  line-height: 1.6;
+}
+
+.review-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.review-tag {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.review-tag.selected {
+  background: var(--accent-light);
+  color: #C75B2A;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.anonymous-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px;
+  background: var(--bg);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.anonymous-row .label { font-size: 13px; }
+
+.anonymous-row .desc {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.toggle {
+  width: 40px;
+  height: 22px;
+  background: var(--border);
+  border-radius: 11px;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: 0.2s;
+}
+
+.toggle.on {
+  background: var(--primary);
+}
+
+.toggle.on::after { left: 20px; }
+
+/* My page */
+.my-tabs {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.my-tab {
+  flex: 1;
+  padding: 14px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+.my-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+.my-content { padding: 12px; }
+
+.my-card {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+}
+
+.my-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  text-align: center;
+}
+
+.stat-num {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.appointment-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.appointment-item:first-child { border-top: none; padding-top: 0; }
+
+.appointment-date {
+  text-align: center;
+  background: var(--primary-light);
+  border-radius: 8px;
+  padding: 6px 10px;
+  flex-shrink: 0;
+  min-width: 50px;
+}
+
+.appointment-date .day {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.appointment-date .month {
+  font-size: 10px;
+  color: var(--primary);
+  margin-top: 2px;
+}
+
+.appointment-info { flex: 1; min-width: 0; }
+
+.appointment-name {
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.appointment-time {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.appointment-status {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.status-upcoming {
+  background: var(--accent-light);
+  color: #C75B2A;
+}
+
+.status-done {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.earnings-banner {
+  background: linear-gradient(135deg, var(--primary), #2D6B57);
+  color: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.earnings-label {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.earnings-amount {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 4px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.earnings-meta {
+  font-size: 11px;
+  opacity: 0.8;
+  display: flex;
+  justify-content: space-between;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.action-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--bg);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+/* Annotation */
+.annotation {
+  background: #FFF8E7;
+  border-left: 3px solid #FFB800;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: #5A4500;
+  margin: 8px 16px 12px;
+  border-radius: 0 6px 6px 0;
+  line-height: 1.5;
+}
+
+.notes-section {
+  max-width: 1280px;
+  margin: 24px auto 0;
+  background: white;
+  border-radius: 12px;
+  padding: 20px 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.notes-section h3 {
+  color: var(--primary);
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+.notes-section h4 {
+  color: var(--text-primary);
+  margin: 16px 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.notes-section table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.notes-section th,
+.notes-section td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.notes-section th {
+  background: var(--bg);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.notes-section code {
+  background: var(--bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: 'SF Mono', Consolas, monospace;
+  color: var(--primary);
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ladder 🪜 · MVP 原型</h1>
+  <p class="slogan">「用两杯咖啡换前进的方向」</p>
+  <p class="meta">v0.1 · 7 个核心页面 · 移动端优先 · 微信小程序形态</p>
+</header>
+
+<section class="principles">
+  <h3>📌 MVP 设计原则（先看这个）</h3>
+  <div class="principles-grid">
+    <div class="principle-item"><strong>① 第一版不做完整 LinkedIn</strong>只要 7 个核心页面，跑通「看→选→约→聊→评」最小闭环</div>
+    <div class="principle-item"><strong>② 双角色：用户 + 答主</strong>April 自己就是 MVP 答主，先拿自己的号跑通</div>
+    <div class="principle-item"><strong>③ 隐私保护 = 核心卖点</strong>马甲 + 脱敏 + 禁录 + 水印，写进每一个页面</div>
+    <div class="principle-item"><strong>④ 飞单防御写进产品</strong>不靠用户自觉，靠"平台体验 > 私聊"</div>
+    <div class="principle-item"><strong>⑤ 不做 Web，先做小程序</strong>移动优先，路径最短，复用微信生态</div>
+  </div>
+</section>
+
+<div class="nav-tabs">
+  <button class="tab active" onclick="scrollToPage('p1')">1. 首页（发现答主）</button>
+  <button class="tab" onclick="scrollToPage('p2')">2. 答主详情</button>
+  <button class="tab" onclick="scrollToPage('p3')">3. 答主填表</button>
+  <button class="tab" onclick="scrollToPage('p4')">4. 预约 + 支付</button>
+  <button class="tab" onclick="scrollToPage('p5')">5. 通话中</button>
+  <button class="tab" onclick="scrollToPage('p6')">6. 评价</button>
+  <button class="tab" onclick="scrollToPage('p7')">7. 我的（双角色）</button>
+</div>
+
+<div class="prototype-flow">
+
+  <!-- Section 1: 用户旅程 -->
+  <div class="flow-section">
+    <div class="flow-section-title">用户旅程 · 看 → 选 → 约 → 聊 → 评</div>
+    <div class="phone-row">
+      <!-- P1: 首页 -->
+      <div>
+        <div class="phone" id="p1">
+          <div class="phone-header">ladder · 首页</div>
+          <div class="phone-screen">
+            <div class="app-bar">
+              <div class="logo">ladder 🪜</div>
+              <div class="avatar">A</div>
+            </div>
+            <div class="filter-bar">
+              <div class="filter-chip active">全部</div>
+              <div class="filter-chip">应届求职</div>
+              <div class="filter-chip">跳槽选公司</div>
+              <div class="filter-chip">职场转型</div>
+              <div class="filter-chip">互联网</div>
+            </div>
+            <div class="annotation">📍 feed 默认按"匹配度"排序。脱敏履历 + 评价标签主导，真名不出现</div>
+            <div class="feed">
+              <div class="mentor-card">
+                <div class="mentor-header">
+                  <div class="mentor-avatar">林</div>
+                  <div class="mentor-info">
+                    <div class="mentor-name">林学姐 <span class="verified">✓</span><span class="privacy-tag">脱敏</span></div>
+                    <div class="mentor-meta">互联网 · 3 年 · 产品经理</div>
+                  </div>
+                </div>
+                <div class="mentor-tags">
+                  <span class="tag">简历优化</span>
+                  <span class="tag">面试模拟</span>
+                  <span class="tag">大厂内推</span>
+                </div>
+                <div class="mentor-bio">3 年互联网产品经验，从校招进大厂踩过所有坑，帮你避开 80% 应届生常见错误。</div>
+                <div class="mentor-footer">
+                  <div class="mentor-price"><strong>¥69</strong> / 25min · 234 次</div>
+                  <button class="btn btn-primary">咨询</button>
+                </div>
+              </div>
+              <div class="mentor-card">
+                <div class="mentor-header">
+                  <div class="mentor-avatar" style="background:linear-gradient(135deg,#5C7FBA,#8DA8D0);">陈</div>
+                  <div class="mentor-info">
+                    <div class="mentor-name">陈前辈 <span class="verified">✓</span><span class="privacy-tag">半脱敏</span></div>
+                    <div class="mentor-meta">金融 · 5 年 · 投资经理</div>
+                  </div>
+                </div>
+                <div class="mentor-tags">
+                  <span class="tag">券商校招</span>
+                  <span class="tag">行研转型</span>
+                </div>
+                <div class="mentor-bio">985 金融本硕，券商→买方聊过求职全过程，可聊实习/校招/跳槽。</div>
+                <div class="mentor-footer">
+                  <div class="mentor-price"><strong>¥99</strong> / 25min · 89 次</div>
+                  <button class="btn btn-primary">咨询</button>
+                </div>
+              </div>
+              <div class="mentor-card">
+                <div class="mentor-header">
+                  <div class="mentor-avatar" style="background:linear-gradient(135deg,#C97B5C,#E0A98A);">April</div>
+                  <div class="mentor-info">
+                    <div class="mentor-name">April 🪜 <span class="verified">✓</span><span class="privacy-tag">完全匿名</span></div>
+                    <div class="mentor-meta">互联网 · 4 年 · 运营</div>
+                  </div>
+                </div>
+                <div class="mentor-tags">
+                  <span class="tag">00 后管理</span>
+                  <span class="tag">应届生心态</span>
+                </div>
+                <div class="mentor-bio">29 岁，亲历 00 后就业潮。最懂"卷不动又躺不平"那群人。</div>
+                <div class="mentor-footer">
+                  <div class="mentor-price"><strong>¥69</strong> / 25min · 12 次</div>
+                  <button class="btn btn-primary">咨询</button>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-nav">
+              <div class="nav-item active"><div class="icon">🏠</div>首页</div>
+              <div class="nav-item"><div class="icon">📅</div>预约</div>
+              <div class="nav-item"><div class="icon">👤</div>我的</div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-caption">
+          <span class="name">P1 · 首页（发现答主）</span>
+          用户首次进入 → 浏览答主 feed
+        </div>
+      </div>
+
+      <!-- P2: 答主详情 -->
+      <div>
+        <div class="phone" id="p2">
+          <div class="phone-header">ladder · 答主详情</div>
+          <div class="phone-screen">
+            <div class="detail-header">
+              <div class="detail-back">← 返回</div>
+              <div class="detail-mentor">
+                <div class="detail-avatar">林</div>
+                <div>
+                  <div class="detail-name">林学姐 <span class="verified">✓</span><span class="privacy-tag">脱敏</span></div>
+                  <div class="detail-meta">互联网 · 3 年 · 产品经理</div>
+                  <div class="detail-stats">
+                    <span>⭐ 4.9</span>
+                    <span>· 234 次咨询</span>
+                    <span>· 100% 应答</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="detail-body">
+              <div class="section">
+                <div class="section-title">🏷️ 擅长问题</div>
+                <div class="mentor-tags" style="margin-bottom:0;">
+                  <span class="tag">简历优化</span>
+                  <span class="tag">面试模拟</span>
+                  <span class="tag">大厂内推</span>
+                  <span class="tag">产品 offer 选择</span>
+                </div>
+              </div>
+              <div class="section">
+                <div class="section-title">📋 脱敏履历</div>
+                <div class="timeline">
+                  <div class="timeline-item">
+                    <span class="year">2023 - 至今</span>
+                    <span class="title">某头部互联网 · 高级产品经理</span>
+                    <div class="desc">负责 XX 业务线，从 0 到 1 主导增长项目</div>
+                  </div>
+                  <div class="timeline-item">
+                    <span class="year">2020 - 2023</span>
+                    <span class="title">某新一线互联网 · 产品经理</span>
+                    <div class="desc">校招入职，主导多个功能模块设计</div>
+                  </div>
+                  <div class="timeline-item">
+                    <span class="year">2016 - 2020</span>
+                    <span class="title">985 · 计算机本科</span>
+                  </div>
+                </div>
+              </div>
+              <div class="section">
+                <div class="section-title">💬 关于我</div>
+                <div class="bio-text">3 年互联网产品经验，从校招进大厂踩过所有坑，面试过 100+ 候选人。我不会告诉你哪个公司好，但我会告诉你怎么判断。</div>
+              </div>
+              <div class="section">
+                <div class="section-title">⭐ 用户评价（234）</div>
+                <div class="review">
+                  <div class="review-header">
+                    <div class="review-user">
+                      <div class="avatar" style="width:24px;height:24px;font-size:10px;background:linear-gradient(135deg,#999,#bbb);">匿</div>
+                      <span class="name">匿名用户</span>
+                    </div>
+                    <span class="stars">★★★★★</span>
+                  </div>
+                  <div class="review-text">信息量巨大，帮我把简历从流水账改成故事。面试成功率从 1/10 涨到 5/10。</div>
+                </div>
+                <div class="review">
+                  <div class="review-header">
+                    <div class="review-user">
+                      <div class="avatar" style="width:24px;height:24px;font-size:10px;background:linear-gradient(135deg,#5C7FBA,#8DA8D0);">M</div>
+                      <span class="name">M同学</span>
+                    </div>
+                    <span class="stars">★★★★★</span>
+                  </div>
+                  <div class="review-text">很耐心，给的内推码真的拿到了面试机会。</div>
+                </div>
+              </div>
+            </div>
+            <div class="cta-bar">
+              <div class="price-info">
+                <div class="label">25min 轻咨询</div>
+                <div class="price">¥69</div>
+              </div>
+              <button class="btn btn-accent">立即预约</button>
+            </div>
+          </div>
+        </div>
+        <div class="phone-caption">
+          <span class="name">P2 · 答主详情</span>
+          看脱敏履历 + 评价 + 标签 → 决策"约不约"
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Section 2: 预约 + 通话 -->
+  <div class="flow-section">
+    <div class="flow-section-title">预约 + 通话 · 飞单防御 + 隐私保护</div>
+    <div class="phone-row">
+      <!-- P4: 预约+支付 -->
+      <div>
+        <div class="phone" id="p4">
+          <div class="phone-header">ladder · 预约</div>
+          <div class="phone-screen">
+            <div class="booking-summary">
+              <div class="avatar">林</div>
+              <div class="booking-info">
+                <div class="booking-name">林学姐 <span class="privacy-tag">脱敏</span></div>
+                <div class="booking-meta">¥69 / 25min · 互联网产品</div>
+              </div>
+            </div>
+            <div class="section-padded">
+              <div class="section-title" style="margin-bottom:12px;">📅 选择日期</div>
+              <div class="calendar">
+                <div class="calendar-day header">日</div>
+                <div class="calendar-day header">一</div>
+                <div class="calendar-day header">二</div>
+                <div class="calendar-day header">三</div>
+                <div class="calendar-day header">四</div>
+                <div class="calendar-day header">五</div>
+                <div class="calendar-day header">六</div>
+                <div class="calendar-day disabled">8</div>
+                <div class="calendar-day disabled">9</div>
+                <div class="calendar-day disabled">10</div>
+                <div class="calendar-day disabled">11</div>
+                <div class="calendar-day today">12</div>
+                <div class="calendar-day available">13</div>
+                <div class="calendar-day available">14</div>
+                <div class="calendar-day available">15</div>
+                <div class="calendar-day available">16</div>
+                <div class="calendar-day available">17</div>
+                <div class="calendar-day selected">18</div>
+                <div class="calendar-day available">19</div>
+                <div class="calendar-day available">20</div>
+                <div class="calendar-day available">21</div>
+              </div>
+
+              <div class="section-title" style="margin-bottom:12px;">⏰ 选择时段</div>
+              <div class="time-slots">
+                <div class="time-slot">10:00</div>
+                <div class="time-slot">10:30</div>
+                <div class="time-slot disabled">11:00</div>
+                <div class="time-slot">14:00</div>
+                <div class="time-slot selected">14:30</div>
+                <div class="time-slot">15:00</div>
+                <div class="time-slot">19:00</div>
+                <div class="time-slot">19:30</div>
+                <div class="time-slot">20:00</div>
+              </div>
+
+              <div class="section-title" style="margin-bottom:12px;">📝 你的问题（让答主提前看）</div>
+              <textarea class="review-input" placeholder="比如：我是 26 届应届生，想投 XX 公司的产品岗，简历需要怎么改？"></textarea>
+            </div>
+            <div class="annotation">📍 强制问答：让答主提前知道问题，提升通话质量。答主也可提前拒单</div>
+            <div style="padding:0 16px;">
+              <div class="agreement">
+                <div class="checkbox checked">✓</div>
+                <div>我同意《ladder 用户协议》《隐私政策》，包括 <strong>通话内容默认不录制</strong>，且 <strong>双方不得在通话前/中索要私人联系方式</strong>（违者双封）</div>
+              </div>
+            </div>
+            <div class="cta-bar">
+              <div class="price-info">
+                <div class="label">9/18 (周五) 14:30</div>
+                <div class="price">¥69</div>
+              </div>
+              <button class="btn btn-accent">立即支付</button>
+            </div>
+          </div>
+        </div>
+        <div class="phone-caption">
+          <span class="name">P4 · 预约 + 支付</span>
+          选日期时段 + 必填问题 + 飞单协议勾选
+        </div>
+      </div>
+
+      <!-- P5: 通话中 -->
+      <div>
+        <div class="phone" id="p5">
+          <div class="phone-header">ladder · 通话</div>
+          <div class="phone-screen">
+            <div class="call-screen">
+              <div class="call-watermark top-left">LADDER · 林学姐 · 仅限学习</div>
+              <div class="call-watermark top-right">2026-09-18 14:30</div>
+              <div class="call-watermark bottom-left">用户ID: a8f3c2 · 脱敏</div>
+              <div class="call-watermark bottom-right">ID: 9d2e1f · 脱敏</div>
+
+              <div class="call-top">
+                <div class="call-status"><div class="dot"></div>通话中</div>
+                <div style="opacity:0.6;">⏺ 禁录</div>
+              </div>
+
+              <div class="call-timer">
+                <div class="time">12:47</div>
+                <div class="total">/ 25:00 剩余</div>
+              </div>
+
+              <div class="call-video-area">
+                <div class="call-avatar">林</div>
+                <div class="call-name">
+                  <div class="name">林学姐</div>
+                  <div class="sub">互联网 · 3 年 · 脱敏</div>
+                </div>
+              </div>
+
+              <div class="call-controls">
+                <div class="call-btn">🎤</div>
+                <div class="call-btn">📹</div>
+                <div class="call-btn active">📝</div>
+                <div class="call-btn danger">📞</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-caption">
+          <span class="name">P5 · 通话中（核心隐私保护）</span>
+          平台内置音视频（技术上禁录） + 四角水印 + 笔记功能
+        </div>
+      </div>
+
+      <!-- P6: 评价 -->
+      <div>
+        <div class="phone" id="p6">
+          <div class="phone-header">ladder · 评价</div>
+          <div class="phone-screen">
+            <div class="review-page">
+              <div class="rating-section">
+                <div class="rating-question">这次咨询对你有帮助吗？</div>
+                <div class="stars-big"><span class="filled">★</span><span class="filled">★</span><span class="filled">★</span><span class="filled">★</span><span class="filled">★</span></div>
+                <div class="rating-hint">非常有用</div>
+              </div>
+
+              <div class="mentor-mini">
+                <div class="avatar">林</div>
+                <div class="info">
+                  <div class="name">林学姐 <span class="privacy-tag">脱敏</span></div>
+                  <div class="meta">2026-09-18 14:30 · 25min</div>
+                </div>
+              </div>
+
+              <div class="section-title-row">给答主贴标签</div>
+              <div class="review-tags">
+                <div class="review-tag selected">💡 很有用</div>
+                <div class="review-tag selected">🎯 专业</div>
+                <div class="review-tag">⏰ 准时</div>
+                <div class="review-tag">❤️ 有耐心</div>
+                <div class="review-tag">🧠 给思路</div>
+                <div class="review-tag">🤝 给资源</div>
+              </div>
+
+              <div class="section-title-row">说点什么（可选）</div>
+              <textarea class="review-input" placeholder="你的评价会帮助其他用户做决策...">信息量巨大，帮我把简历从流水账改成故事。面试成功率从 1/10 涨到 5/10。</textarea>
+
+              <div class="anonymous-row">
+                <div>
+                  <div class="label">匿名发布</div>
+                  <div class="desc">答主看不到你的真实身份</div>
+                </div>
+                <div class="toggle on"></div>
+              </div>
+
+              <button class="btn btn-primary btn-full">提交评价</button>
+            </div>
+          </div>
+        </div>
+        <div class="phone-caption">
+          <span class="name">P6 · 评价</span>
+          评分 + 标签 + 文字 + 匿名开关。标签沉淀到答主主页
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Section 3: 答主侧 -->
+  <div class="flow-section">
+    <div class="flow-section-title">答主侧 · 注册 → 管理（April 自己先跑）</div>
+    <div class="phone-row">
+      <!-- P3: 答主填表 -->
+      <div>
+        <div class="phone" id="p3">
+          <div class="phone-header">ladder · 成为答主</div>
+          <div class="phone-screen">
+            <div class="app-bar">
+              <div class="logo" style="font-size:16px;">← 成为答主</div>
+              <div style="font-size:12px;color:var(--text-tertiary);">第 3 / 5 步</div>
+            </div>
+            <div class="step-indicator">
+              <div class="step-dot done"></div>
+              <div class="step-line"></div>
+              <div class="step-dot done"></div>
+              <div class="step-line"></div>
+              <div class="step-dot active"></div>
+              <div class="step-line"></div>
+              <div class="step-dot"></div>
+              <div class="step-line"></div>
+              <div class="step-dot"></div>
+            </div>
+            <div class="form-page">
+              <div class="privacy-banner">
+                <span class="icon">🔒</span>
+                <div><strong>ladder 是最保护答主隐私的咨询平台</strong><br>显示信息由你控制，真名/公司可全程隐藏</div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">显示昵称 <span class="required">*</span></label>
+                <input class="form-input" value="April 🪜" />
+                <div class="form-hint">建议不写真名。可加 emoji 增强辨识度</div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">行业 + 从业年限 <span class="required">*</span></label>
+                <input class="form-input" value="互联网 · 4 年" />
+                <div class="form-hint">脱敏到"行业+年限"，不写具体公司</div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">我能回答的问题 <span class="required">*</span>（最多 5 个）</label>
+                <div class="tag-selector">
+                  <div class="tag-selectable">简历优化</div>
+                  <div class="tag-selectable selected">00 后管理</div>
+                  <div class="tag-selectable selected">应届生心态</div>
+                  <div class="tag-selectable selected">职场迷茫</div>
+                  <div class="tag-selectable">跳槽策略</div>
+                  <div class="tag-selectable">公司氛围</div>
+                  <div class="tag-selectable">薪资谈判</div>
+                  <div class="tag-selectable">副业探索</div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">身份认证 <span class="required">*</span>（三选一）</label>
+                <div class="verify-option selected">
+                  <div class="verify-icon">🏢</div>
+                  <div class="verify-info">
+                    <div class="verify-name">公司邮箱认证</div>
+                    <div class="verify-desc">用 @公司域名 邮箱验证，最快</div>
+                  </div>
+                  <div class="checkbox checked">✓</div>
+                </div>
+                <div class="verify-option">
+                  <div class="verify-icon">🎓</div>
+                  <div class="verify-info">
+                    <div class="verify-name">学信网认证</div>
+                    <div class="verify-desc">适合应届/在校答主</div>
+                  </div>
+                  <div class="checkbox"></div>
+                </div>
+                <div class="verify-option">
+                  <div class="verify-icon">💼</div>
+                  <div class="verify-info">
+                    <div class="verify-name">LinkedIn 交叉验证</div>
+                    <div class="verify-desc">海外背景答主推荐</div>
+                  </div>
+                  <div class="checkbox"></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">单次咨询定价</label>
+                <div style="display:flex;gap:8px;">
+                  <div class="tag-selectable">¥49</div>
+                  <div class="tag-selectable selected">¥69</div>
+                  <div class="tag-selectable">¥89</div>
+                  <div class="tag-selectable">¥99</div>
+                </div>
+                <div class="form-hint">平台抽 20%，你实际到手 ¥55.2</div>
+              </div>
+            </div>
+            <div class="form-bottom">
+              <button class="btn btn-primary btn-full">下一步：填写时段 →</button>
+            </div>
+          </div>
+        </div>
+        <div class="phone-caption">
+          <span class="name">P3 · 答主填表（5 步）</span>
+          1.基本 2.问题 3.认证 4.描述 5.时段。每步都强调"脱敏 + 隐私"
+        </div>
+      </div>
+
+      <!-- P7: 我的（双角色） -->
+      <div>
+        <div class="phone" id="p7">
+          <div class="phone-header">ladder · 我的</div>
+          <div class="phone-screen">
+            <div class="app-bar">
+              <div class="logo">ladder 🪜</div>
+              <div class="avatar">A</div>
+            </div>
+            <div class="my-tabs">
+              <div class="my-tab">我是用户</div>
+              <div class="my-tab active">我是答主</div>
+            </div>
+            <div class="my-content">
+              <div class="earnings-banner">
+                <div class="earnings-label">本月收益（已扣除平台费）</div>
+                <div class="earnings-amount">¥828</div>
+                <div class="earnings-meta">
+                  <span>12 次咨询</span>
+                  <span>评分 4.9 ⭐</span>
+                </div>
+              </div>
+
+              <div class="my-card">
+                <div class="my-card-title">📊 答主数据</div>
+                <div class="stat-row">
+                  <div>
+                    <div class="stat-num">12</div>
+                    <div class="stat-label">本月咨询</div>
+                  </div>
+                  <div>
+                    <div class="stat-num">4.9</div>
+                    <div class="stat-label">评分</div>
+                  </div>
+                  <div>
+                    <div class="stat-num">98%</div>
+                    <div class="stat-label">应答率</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="my-card">
+                <div class="my-card-title">📅 待沟通（今日 2 单）</div>
+                <div class="appointment-item">
+                  <div class="appointment-date">
+                    <div class="day">18</div>
+                    <div class="month">9月</div>
+                  </div>
+                  <div class="appointment-info">
+                    <div class="appointment-name">M同学 <span class="privacy-tag">脱敏</span></div>
+                    <div class="appointment-time">14:30 · 25min · 应届求职</div>
+                  </div>
+                  <div class="appointment-status status-upcoming">即将开始</div>
+                </div>
+                <div class="appointment-item">
+                  <div class="appointment-date">
+                    <div class="day">18</div>
+                    <div class="month">9月</div>
+                  </div>
+                  <div class="appointment-info">
+                    <div class="appointment-name">匿名用户 <span class="privacy-tag">脱敏</span></div>
+                    <div class="appointment-time">20:00 · 25min · 跳槽策略</div>
+                  </div>
+                  <div class="appointment-status status-upcoming">即将开始</div>
+                </div>
+              </div>
+
+              <div class="my-card">
+                <div class="my-card-title">⚙️ 答主管理</div>
+                <div class="action-grid">
+                  <div class="action-item">
+                    <div class="action-icon">📅</div>
+                    <span>开放时段</span>
+                  </div>
+                  <div class="action-item">
+                    <div class="action-icon">💰</div>
+                    <span>价格调整</span>
+                  </div>
+                  <div class="action-item">
+                    <div class="action-icon">🔒</div>
+                    <span>隐私设置</span>
+                  </div>
+                  <div class="action-item">
+                    <div class="action-icon">💵</div>
+                    <span>提现</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-nav">
+              <div class="nav-item"><div class="icon">🏠</div>首页</div>
+              <div class="nav-item"><div class="icon">📅</div>预约</div>
+              <div class="nav-item active"><div class="icon">👤</div>我的</div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-caption">
+          <span class="name">P7 · 我的（双角色）</span>
+          tab 切换"用户/答主"。答主侧：收益+待沟通+隐私管理
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 配套说明：字段清单 + 流程 -->
+<section class="notes-section">
+  <h3>📋 配套说明</h3>
+
+  <h4>1. 关键字段清单（你应该在脑子里想清楚这些）</h4>
+  <table>
+    <thead>
+      <tr><th>实体</th><th>字段</th><th>说明</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>答主</strong></td>
+        <td>昵称 / 行业 / 从业年限 / 擅长问题标签 / 脱敏履历 / 自我描述 / 价格 / 开放时段 / 认证状态 / 评分</td>
+        <td>核心是"标签"主导，不是"履历"主导。脱敏是默认不是选项</td>
+      </tr>
+      <tr>
+        <td><strong>用户</strong></td>
+        <td>昵称 / 身份（学生/在职）/ 关注的问题领域 / 收藏答主</td>
+        <td>用户侧字段尽量少。ladder 是"找答主"不是"做社交"</td>
+      </tr>
+      <tr>
+        <td><strong>预约</strong></td>
+        <td>答主ID / 用户ID / 时段 / 问题描述 / 价格 / 状态 / 飞单标记</td>
+        <td>状态：待支付 / 待沟通 / 进行中 / 待评价 / 已完成 / 已退款</td>
+      </tr>
+      <tr>
+        <td><strong>评价</strong></td>
+        <td>评分 / 标签 / 文字 / 是否匿名 / 是否展示在答主主页</td>
+        <td>标签是评价的核心（沉淀到答主侧）</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>2. MVP 范围（第一版做什么 / 不做什么）</h4>
+  <table>
+    <thead>
+      <tr><th>第一版要做</th><th>第一版不做</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>✅ 答主填表 + 标签体系<br>✅ 用户浏览 + 搜索 + 筛选<br>✅ 预约 + 支付（微信支付）<br>✅ 平台内置音视频（25min 倒计时）<br>✅ 评价 + 标签沉淀<br>✅ 答主收益 + 提现<br>✅ 飞单防御协议 + 关键词检测</td>
+        <td>❌ 完整 LinkedIn 履历展示<br>❌ 答主之间的关注/互动<br>❌ 群聊/社区/动态<br>❌ AI 答主/数字人<br>❌ 直播/录播课<br>❌ 多人咨询<br>❌ 复杂会员体系</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>3. MVP 验证的核心指标</h4>
+  <table>
+    <thead>
+      <tr><th>指标</th><th>目标</th><th>为什么</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>答主 → 用户转化率</td>
+        <td>≥ 30%</td>
+        <td>证明"看得到答主" → "愿意约"是顺畅的</td>
+      </tr>
+      <tr>
+        <td>通话完成率</td>
+        <td>≥ 80%</td>
+        <td>低于 80% 说明问题描述/匹配有问题</td>
+      </tr>
+      <tr>
+        <td>用户评分均值</td>
+        <td>≥ 4.5</td>
+        <td>ladder 的命脉是"高质量答主"口碑</td>
+      </tr>
+      <tr>
+        <td>答主周活跃天数</td>
+        <td>≥ 3 天</td>
+        <td>证明答主不是尝鲜就走的</td>
+      </tr>
+      <tr>
+        <td>用户复购率（30 天内）</td>
+        <td>≥ 25%</td>
+        <td>决定 ladder 是"一次性交易"还是"成长陪伴"</td>
+      </tr>
+      <tr>
+        <td>飞单率</td>
+        <td>≤ 5%</td>
+        <td>高了说明产品体验输给了私聊</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>4. 风险与解法对应表</h4>
+  <table>
+    <thead>
+      <tr><th>April 担心的风险</th><th>对应产品机制</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>答主简历造假</td>
+        <td><code>P3 三选一强制认证</code>（公司邮箱/学信网/LinkedIn）+ 老用户举报 → 复核</td>
+      </tr>
+      <tr>
+        <td>答主言论不当</td>
+        <td>通话前电子协议 + 通话后用户标"不专业"标签累积 → 黑名单</td>
+      </tr>
+      <tr>
+        <td>飞单（私下建联）</td>
+        <td><code>P4 协议强制勾选</code> + <code>P5 平台内置音视频（禁录）</code> + 关键词检测 + 答主"粉丝/复购"沉淀</td>
+      </tr>
+      <tr>
+        <td>April 自己的隐私</td>
+        <td>默认脱敏 + 可申请"完全匿名" + 平台内置通话（不依赖微信） + 通话四角水印</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>5. 开放问题（建议你接着想）</h4>
+  <ol style="font-size:13px;line-height:1.8;color:var(--text-primary);padding-left:24px;">
+    <li>ladder 平台抽成比例？<strong>建议 15-20%</strong>（比在行低，比知乎高）</li>
+    <li>第一个月想做多少答主？建议 <strong>20-30 个</strong>，全 April 自己 1v1 拉</li>
+    <li>第一个月想做多少用户？建议 <strong>200-500</strong>，从 1-2 个垂直社群切入</li>
+    <li>小程序 vs H5 vs App？<strong>建议小程序</strong>，复用微信生态</li>
+    <li>要不要做"交换"模式（非货币）？<strong>建议第二版考虑</strong>，第一版聚焦"付费咨询"心智</li>
+  </ol>
+</section>
+
+<script>
+function scrollToPage(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', t.textContent.startsWith(id.replace('p','')));
+  });
+}
+</script>
+
+</body>
+</html>
